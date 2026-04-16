@@ -1,0 +1,358 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2D1A000D2C00100100A00001 /* EnoMusicIOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1A00062C00100100A00001 /* EnoMusicIOSApp.swift */; };
+		2D1A000E2C00100100A00001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1A00072C00100100A00001 /* ContentView.swift */; };
+		2D1A000F2C00100100A00001 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1A00082C00100100A00001 /* WebView.swift */; };
+		2D1A00102C00100100A00001 /* PlatformBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1A00092C00100100A00001 /* PlatformBridge.swift */; };
+		2D1A00112C00100100A00001 /* Web in Resources */ = {isa = PBXBuildFile; fileRef = 2D1A000B2C00100100A00001 /* Web */; };
+		2D1A001A2C00100100A00001 /* CookieStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1A001B2C00100100A00001 /* CookieStore.swift */; };
+		2D1A001C2C00100100A00001 /* BiliApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1A001D2C00100100A00001 /* BiliApiClient.swift */; };
+		2D1A001E2C00100100A00001 /* BiliLoginClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1A001F2C00100100A00001 /* BiliLoginClient.swift */; };
+		2D1A00202C00100100A00001 /* NativeAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1A00212C00100100A00001 /* NativeAudioPlayer.swift */; };
+		2D1A00232C00100100A00001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D1A00222C00100100A00001 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2D1A00032C00100100A00001 /* EnoMusicIOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EnoMusicIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D1A00062C00100100A00001 /* EnoMusicIOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnoMusicIOSApp.swift; sourceTree = "<group>"; };
+		2D1A00072C00100100A00001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		2D1A00082C00100100A00001 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		2D1A00092C00100100A00001 /* PlatformBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformBridge.swift; sourceTree = "<group>"; };
+		2D1A000A2C00100100A00001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2D1A000B2C00100100A00001 /* Web */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Web; sourceTree = "<group>"; };
+		2D1A001B2C00100100A00001 /* CookieStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookieStore.swift; sourceTree = "<group>"; };
+		2D1A001D2C00100100A00001 /* BiliApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiliApiClient.swift; sourceTree = "<group>"; };
+		2D1A001F2C00100100A00001 /* BiliLoginClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiliLoginClient.swift; sourceTree = "<group>"; };
+		2D1A00212C00100100A00001 /* NativeAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAudioPlayer.swift; sourceTree = "<group>"; };
+		2D1A00222C00100100A00001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2D1A00012C00100100A00001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2D1A00022C00100100A00001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2D1A00032C00100100A00001 /* EnoMusicIOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2D1A00042C00100100A00001 = {
+			isa = PBXGroup;
+			children = (
+				2D1A00052C00100100A00001 /* EnoMusicIOS */,
+				2D1A00022C00100100A00001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2D1A00052C00100100A00001 /* EnoMusicIOS */ = {
+			isa = PBXGroup;
+			children = (
+				2D1A00062C00100100A00001 /* EnoMusicIOSApp.swift */,
+				2D1A00072C00100100A00001 /* ContentView.swift */,
+				2D1A00082C00100100A00001 /* WebView.swift */,
+				2D1A00092C00100100A00001 /* PlatformBridge.swift */,
+				2D1A001B2C00100100A00001 /* CookieStore.swift */,
+				2D1A001D2C00100100A00001 /* BiliApiClient.swift */,
+				2D1A001F2C00100100A00001 /* BiliLoginClient.swift */,
+				2D1A00212C00100100A00001 /* NativeAudioPlayer.swift */,
+				2D1A000A2C00100100A00001 /* Info.plist */,
+				2D1A00222C00100100A00001 /* Assets.xcassets */,
+				2D1A000B2C00100100A00001 /* Web */,
+			);
+			path = EnoMusicIOS;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2D1A000C2C00100100A00001 /* EnoMusicIOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D1A00172C00100100A00001 /* Build configuration list for PBXNativeTarget "EnoMusicIOS" */;
+			buildPhases = (
+				2D1A00122C00100100A00001 /* Sources */,
+				2D1A00012C00100100A00001 /* Frameworks */,
+				2D1A00132C00100100A00001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EnoMusicIOS;
+			productName = EnoMusicIOS;
+			productReference = 2D1A00032C00100100A00001 /* EnoMusicIOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2D1A00002C00100100A00001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					2D1A000C2C00100100A00001 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = 2D1A00162C00100100A00001 /* Build configuration list for PBXProject "EnoMusicIOS" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2D1A00042C00100100A00001;
+			productRefGroup = 2D1A00022C00100100A00001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2D1A000C2C00100100A00001 /* EnoMusicIOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2D1A00132C00100100A00001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D1A00232C00100100A00001 /* Assets.xcassets in Resources */,
+				2D1A00112C00100100A00001 /* Web in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2D1A00122C00100100A00001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D1A000D2C00100100A00001 /* EnoMusicIOSApp.swift in Sources */,
+				2D1A000E2C00100100A00001 /* ContentView.swift in Sources */,
+				2D1A000F2C00100100A00001 /* WebView.swift in Sources */,
+				2D1A00102C00100100A00001 /* PlatformBridge.swift in Sources */,
+				2D1A001A2C00100100A00001 /* CookieStore.swift in Sources */,
+				2D1A001C2C00100100A00001 /* BiliApiClient.swift in Sources */,
+				2D1A001E2C00100100A00001 /* BiliLoginClient.swift in Sources */,
+				2D1A00202C00100100A00001 /* NativeAudioPlayer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2D1A00142C00100100A00001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 7U9SY9W768;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		2D1A00152C00100100A00001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 7U9SY9W768;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2D1A00182C00100100A00001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = EnoMusicIOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eno.music.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2D1A00192C00100100A00001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = EnoMusicIOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eno.music.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2D1A00162C00100100A00001 /* Build configuration list for PBXProject "EnoMusicIOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D1A00142C00100100A00001 /* Debug */,
+				2D1A00152C00100100A00001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2D1A00172C00100100A00001 /* Build configuration list for PBXNativeTarget "EnoMusicIOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D1A00182C00100100A00001 /* Debug */,
+				2D1A00192C00100100A00001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2D1A00002C00100100A00001 /* Project object */;
+}

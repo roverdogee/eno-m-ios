@@ -1,0 +1,2680 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <title>ENO-M iOS</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+        background: #050505;
+        color: #f4f4f5;
+        --glass-bg: #1a1b1f;
+        --glass-strong: #202126;
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --glass-highlight: transparent;
+        --accent: #ff9f0a;
+        --accent-deep: #211300;
+        --radius-sm: 14px;
+        --radius-md: 20px;
+        --radius-lg: 28px;
+        --radius-xl: 34px;
+      }
+
+      html {
+        height: 100%;
+        background: #08090a;
+        overflow: hidden;
+      }
+
+      body {
+        margin: 0;
+        height: 100%;
+        background: #08090a;
+        overflow: hidden;
+        touch-action: manipulation;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: calc(max(18px, env(safe-area-inset-top)) + 96px);
+        z-index: 36;
+        pointer-events: none;
+        background: #08090a;
+      }
+
+      body.home-active::before {
+        height: calc(max(18px, env(safe-area-inset-top)) + 154px);
+      }
+
+      body.player-open::before {
+        display: none;
+      }
+
+      main {
+        height: 100dvh;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: calc(max(18px, env(safe-area-inset-top)) + 104px) 16px calc(104px + env(safe-area-inset-bottom));
+        box-sizing: border-box;
+      }
+
+      body.home-active main {
+        padding-top: calc(max(18px, env(safe-area-inset-top)) + 160px);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 30px;
+        line-height: 1.08;
+        letter-spacing: 0;
+        color: transparent;
+        background: linear-gradient(
+          90deg,
+          #ff6b8a 0%,
+          #ffcc66 22%,
+          #8ee86f 42%,
+          #56d6ff 64%,
+          #b39cff 82%,
+          #ff8bd1 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+      }
+
+      h2 {
+        margin: 4px 0 0;
+        font-size: 18px;
+        line-height: 1.2;
+        letter-spacing: 0;
+      }
+
+      p {
+        margin: 0;
+        color: #a1a1aa;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      .search {
+        display: flex;
+        gap: 8px;
+      }
+
+      .home-search {
+        position: fixed;
+        left: 16px;
+        right: 16px;
+        top: calc(max(18px, env(safe-area-inset-top)) + 102px);
+        z-index: 41;
+        box-sizing: border-box;
+        background: #08090a;
+      }
+
+      body:not(.home-active) .home-search,
+      body.player-open .home-search {
+        display: none;
+      }
+
+      input {
+        min-width: 0;
+        flex: 1;
+        color-scheme: dark;
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        background: #15161a;
+        box-shadow: none;
+        color: #f4f4f5;
+        font-size: 16px;
+        padding: 12px;
+      }
+
+      button {
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: var(--radius-md);
+        background: var(--accent);
+        box-shadow: none;
+        color: var(--accent-deep);
+        font-size: 15px;
+        font-weight: 700;
+        padding: 12px 14px;
+      }
+
+      button.secondary {
+        border-color: var(--glass-border);
+        background: var(--glass-bg);
+        color: #f4f4f5;
+      }
+
+      button:disabled {
+        opacity: 0.55;
+      }
+
+      .toast {
+        position: fixed;
+        left: 16px;
+        right: 16px;
+        top: max(12px, env(safe-area-inset-top));
+        z-index: 120;
+        visibility: hidden;
+        opacity: 0;
+        transform: translate3d(0, calc(-100% - 24px), 0);
+        pointer-events: none;
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        background: rgba(32, 33, 38, 0.94);
+        box-shadow: 0 18px 36px rgba(0, 0, 0, 0.38);
+        color: #f4f4f5;
+        padding: 12px 14px;
+        font-size: 14px;
+        line-height: 1.4;
+        box-sizing: border-box;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        transition:
+          transform 260ms cubic-bezier(.2, .9, .25, 1),
+          opacity 180ms ease,
+          visibility 0s linear 260ms;
+      }
+
+      .toast.show {
+        visibility: visible;
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+        transition:
+          transform 320ms cubic-bezier(.2, .9, .25, 1),
+          opacity 180ms ease,
+          visibility 0s;
+      }
+
+      .toast.error {
+        border-color: #f43f5e;
+      }
+
+      .toast.success {
+        border-color: var(--accent);
+      }
+
+      .sheet-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 110;
+        display: none;
+        align-items: flex-end;
+        background: rgba(0, 0, 0, 0.44);
+      }
+
+      .sheet-backdrop.show {
+        display: flex;
+      }
+
+      .sheet {
+        width: 100%;
+        max-height: 72vh;
+        overflow: auto;
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        background: #15161a;
+        box-shadow: 0 -22px 44px rgba(0, 0, 0, 0.42);
+        padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+        box-sizing: border-box;
+      }
+
+      .sheet h2 {
+        margin-bottom: 12px;
+      }
+
+      .sheet-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .sheet-actions button {
+        width: 100%;
+        text-align: left;
+      }
+
+      .app-header {
+        position: fixed;
+        left: 16px;
+        right: 16px;
+        top: max(18px, env(safe-area-inset-top));
+        z-index: 43;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        background: #08090a;
+        pointer-events: none;
+      }
+
+      .app-heading {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .toolbar,
+      .player {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .player {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: none;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: flex-start;
+        border: 0;
+        border-radius: 0;
+        background: #08090a;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+        padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+        box-sizing: border-box;
+      }
+
+      .player.open {
+        display: flex;
+      }
+
+      body.player-open .app-header,
+      body.player-open .tabs,
+      body.player-open .mini-player {
+        display: none;
+      }
+
+      .tabs {
+        position: fixed;
+        left: 16px;
+        right: 16px;
+        top: calc(max(18px, env(safe-area-inset-top)) + 46px);
+        z-index: 42;
+        display: flex;
+        align-items: flex-end;
+        gap: 20px;
+        min-height: 42px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        background: #08090a;
+        padding-bottom: 6px;
+      }
+
+      .tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tab-label {
+        flex: 0 0 auto;
+        width: 52px;
+        color: #d4d4d8;
+        opacity: 0.42;
+        font-size: 22px;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: 0;
+        user-select: none;
+        -webkit-user-select: none;
+        transition: color 0.18s ease, opacity 0.18s ease, font-size 0.18s ease;
+      }
+
+      .tab-label.active {
+        color: #f4f4f5;
+        opacity: 1;
+        font-size: 22px;
+      }
+
+      .view {
+        display: none;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .view.active {
+        display: flex;
+      }
+
+      body.tab-forward .view.active {
+        animation: metroInForward 320ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      body.tab-back .view.active {
+        animation: metroInBack 320ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes metroInForward {
+        from { opacity: 0; transform: translate3d(22px, 0, 0); filter: blur(1.5px); }
+        to { opacity: 1; transform: translate3d(0, 0, 0); filter: blur(0); }
+      }
+
+      @keyframes metroInBack {
+        from { opacity: 0; transform: translate3d(-22px, 0, 0); filter: blur(1.5px); }
+        to { opacity: 1; transform: translate3d(0, 0, 0); filter: blur(0); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body.tab-forward .view.active,
+        body.tab-back .view.active {
+          animation: none;
+        }
+      }
+
+      .settings {
+        display: none;
+        flex-direction: column;
+        gap: 18px;
+        background: transparent;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .settings.active {
+        display: flex;
+      }
+
+      .settings-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .settings-actions button {
+        width: 100%;
+        text-align: left;
+      }
+
+      .settings-logout-gap {
+        margin-top: 12px;
+      }
+
+      .player-top {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .icon-button {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-md);
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .player-title {
+        width: 100%;
+        align-self: stretch;
+        pointer-events: none;
+      }
+
+      .player-close-button {
+        width: auto;
+        min-width: 72px;
+        height: 44px;
+        padding: 0 16px;
+        border-radius: var(--radius-lg);
+        font-size: 14px;
+      }
+
+      .status {
+        width: 100%;
+        color: #d4d4d8;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .artwork {
+        display: block;
+        width: min(68vw, 34vh, 280px);
+        aspect-ratio: 1;
+        border-radius: var(--radius-xl);
+        object-fit: cover;
+        background: #15161a;
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+        margin: 14px 0 12px;
+        color: transparent;
+      }
+
+      .artwork.empty-cover {
+        background:
+          radial-gradient(circle at 30% 24%, rgba(255, 159, 10, 0.18), transparent 34%),
+          linear-gradient(135deg, #1e1f24, #101115);
+        border-color: rgba(255, 159, 10, 0.16);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+      }
+
+      .track-title {
+        width: 100%;
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.18;
+        text-align: center;
+      }
+
+      .track-artist {
+        width: 100%;
+        color: #a1a1aa;
+        font-size: 14px;
+        line-height: 1.25;
+        text-align: center;
+      }
+
+      .artist-link {
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        color: #a1a1aa;
+        padding: 0;
+        font-weight: 700;
+      }
+
+      .artist-link.available {
+        color: var(--accent);
+      }
+
+      .progress {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 44px 1fr 44px;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        background: #15161a;
+        box-shadow: none;
+        padding: 7px 10px;
+        box-sizing: border-box;
+      }
+
+      .progress-time {
+        color: #a1a1aa;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      input[type="range"] {
+        padding: 0;
+        border: 0;
+        accent-color: var(--accent);
+        background: transparent;
+        box-shadow: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+
+      .detail-controls {
+        display: grid;
+        grid-template-columns: 54px 58px 88px 58px 54px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .detail-controls button {
+        height: 44px;
+        padding: 0 10px;
+        white-space: nowrap;
+      }
+
+      .transport-button {
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .player-side-button {
+        height: 38px;
+        min-width: 54px;
+        padding: 0 8px;
+        font-size: 13px;
+      }
+
+      .play-toggle-button {
+        height: 50px;
+        font-size: 16px;
+        color: var(--accent-deep);
+        border-radius: var(--radius-lg);
+        background: var(--accent);
+      }
+
+      .player-gesture-zone {
+        width: 100%;
+        flex: 1 1 auto;
+        min-height: 104px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 8px;
+        box-sizing: border-box;
+        touch-action: manipulation;
+      }
+
+      .gesture-hint {
+        color: #71717a;
+        font-size: 12px;
+        line-height: 1.3;
+      }
+
+      .mini-player {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        bottom: max(12px, env(safe-area-inset-bottom));
+        z-index: 10;
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr) 52px;
+        gap: 8px;
+        align-items: center;
+        min-height: 60px;
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        background: #18191d;
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.32);
+        color: #f4f4f5;
+        padding: 7px;
+        box-sizing: border-box;
+      }
+
+      .mini-cover {
+        display: block;
+        width: 44px;
+        aspect-ratio: 1;
+        border-radius: var(--radius-md);
+        object-fit: cover;
+        background: #27282d;
+        color: transparent;
+      }
+
+      .mini-cover.empty-cover {
+        background:
+          radial-gradient(circle at 32% 28%, rgba(255, 159, 10, 0.22), transparent 36%),
+          linear-gradient(135deg, #24252b, #111217);
+      }
+
+      .mini-body {
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .mini-title {
+        display: block;
+        font-weight: 800;
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .mini-subtitle {
+        display: block;
+        margin-top: 3px;
+        color: #a1a1aa;
+        font-size: 12px;
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .mini-progress {
+        grid-column: 1 / -1;
+        height: 3px;
+        border-radius: 999px;
+        background: #2a2b30;
+        overflow: hidden;
+      }
+
+      .mini-progress-fill {
+        width: 0%;
+        height: 100%;
+        background: var(--accent);
+      }
+
+      #mini-toggle {
+        width: 52px;
+        min-width: 52px;
+        height: 38px;
+        font-size: 13px;
+      }
+
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .section {
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        background: #111216;
+        padding: 10px;
+      }
+
+      .section summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        list-style: none;
+      }
+
+      .section summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .section summary::after {
+        content: "展开";
+        color: #a1a1aa;
+        font-size: 13px;
+      }
+
+      .section[open] summary::after {
+        content: "折叠";
+      }
+
+      .section .list {
+        margin-top: 10px;
+      }
+
+      .space-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .space-actions button {
+        padding: 10px 8px;
+        font-size: 13px;
+      }
+
+      .space-actions[hidden] {
+        display: none;
+      }
+
+      .bottom-action {
+        width: 100%;
+        min-height: 42px;
+        margin-top: 10px;
+        border-radius: var(--radius-md);
+      }
+
+      .bottom-action[hidden] {
+        display: none;
+      }
+
+      .item {
+        display: grid;
+        grid-template-columns: 68px minmax(0, 1fr) 42px;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        background: #17181c;
+        box-shadow: none;
+        padding: 8px;
+        text-align: left;
+        color: inherit;
+      }
+
+      .artist-item {
+        grid-template-columns: 1fr auto;
+      }
+
+      .artist-play {
+        display: block;
+        min-width: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        color: inherit;
+        padding: 0;
+        text-align: left;
+      }
+
+      .item-play {
+        grid-column: 1 / 3;
+        display: grid;
+        grid-template-columns: 68px minmax(0, 1fr);
+        align-items: center;
+        gap: 8px;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        color: inherit;
+        padding: 0;
+        text-align: left;
+        font: inherit;
+      }
+
+      .item.active {
+        border-color: rgba(255, 159, 10, 0.8);
+        background: rgba(255, 159, 10, 0.14);
+      }
+
+      .item img {
+        display: block;
+        width: 68px;
+        aspect-ratio: 16 / 10;
+        border-radius: var(--radius-sm);
+        object-fit: cover;
+        background: #27282d;
+      }
+
+      .item img.empty-cover {
+        background:
+          radial-gradient(circle at 32% 28%, rgba(255, 159, 10, 0.2), transparent 36%),
+          linear-gradient(135deg, #24252b, #111217);
+      }
+
+      .favorite-button {
+        width: 42px;
+        height: 38px;
+        padding: 0;
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        background: #202126;
+        color: #d4d4d8;
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      .favorite-button.active {
+        border-color: rgba(255, 159, 10, 0.8);
+        background: rgba(255, 159, 10, 0.2);
+        color: #f4f4f5;
+      }
+
+      .favorite-button.remove-action {
+        border-color: rgba(255, 69, 58, 0.42);
+        background: rgba(255, 69, 58, 0.14);
+        color: #ffb4ad;
+      }
+
+      .favorite-button.passive {
+        opacity: 0.45;
+      }
+
+      .item.dragging {
+        opacity: 0.92;
+        transform: scale(1.015);
+        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.34);
+        z-index: 4;
+      }
+
+      .reorder-handle {
+        width: 42px;
+        height: 38px;
+        min-height: 0;
+        padding: 0;
+        border-radius: var(--radius-md);
+        font-size: 24px;
+        line-height: 1;
+        color: #a1a1aa;
+        touch-action: none;
+        cursor: grab;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      .title {
+        font-weight: 700;
+        line-height: 1.3;
+        font-size: 14px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .meta {
+        margin-top: 6px;
+        color: #a1a1aa;
+        font-size: 12px;
+      }
+
+      .section-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin: 10px 0 12px;
+      }
+
+      .section-actions.single {
+        grid-template-columns: 1fr;
+      }
+
+      .section-actions button {
+        width: 100%;
+        min-height: 40px;
+        padding: 9px 10px;
+        border-radius: var(--radius-md);
+        font-size: 13px;
+      }
+
+      .playlist-actions {
+        display: flex;
+        gap: 8px;
+        margin-left: auto;
+      }
+
+      .playlist-actions button {
+        min-height: 32px;
+        padding: 6px 9px;
+        font-size: 12px;
+      }
+
+      .playlist-items {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .empty {
+        color: #71717a;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: #d4d4d8;
+        background: #15161a;
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 12px;
+        max-height: 180px;
+        overflow: auto;
+      }
+
+      #settings-output {
+        margin-bottom: calc(96px + env(safe-area-inset-bottom));
+        scroll-margin-bottom: calc(112px + env(safe-area-inset-bottom));
+      }
+    </style>
+  </head>
+  <body class="home-active">
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div class="app-header">
+      <div class="app-heading">
+        <h1>ENO-M</h1>
+      </div>
+    </div>
+
+    <nav class="tabs" aria-label="主导航">
+      <span class="tab-label active" data-tab="home-view">首页</span>
+      <span class="tab-label" data-tab="favorites-view">收藏</span>
+      <span class="tab-label" data-tab="history-view">列表</span>
+      <span class="tab-label" data-tab="settings-panel">设置</span>
+    </nav>
+
+    <div class="search home-search">
+      <input id="keyword" placeholder="输入歌曲、歌手或 BV 号" />
+      <button id="search-button">搜索</button>
+    </div>
+
+    <main>
+      <section id="home-view" class="view active">
+        <details id="results-section" class="section">
+          <summary><h2 id="results-title">搜索结果</h2></summary>
+          <div id="space-actions" class="space-actions" hidden>
+            <button id="favorite-artist-button" class="secondary">收藏 UP</button>
+            <button id="space-play-all-button" class="secondary">全部播放</button>
+          </div>
+          <div id="results" class="list"></div>
+          <button id="space-load-more-button" class="secondary bottom-action" hidden>加载更多</button>
+        </details>
+      </section>
+
+      <section id="favorites-view" class="view">
+        <details id="favorite-artists-section" class="section" open>
+          <summary><h2>收藏的 UP 主</h2></summary>
+          <div id="favorite-artists" class="list"></div>
+        </details>
+        <details id="favorite-songs-section" class="section" open>
+          <summary><h2>收藏的音乐</h2></summary>
+          <div class="section-actions">
+            <button id="favorite-play-all-button" class="secondary">全部播放</button>
+            <button id="favorite-reorder-button" class="secondary">调整顺序</button>
+          </div>
+          <div id="favorites" class="list"></div>
+        </details>
+      </section>
+
+      <section id="history-view" class="view">
+        <div class="section-actions single">
+          <button id="create-playlist-button" class="secondary">新建播放列表</button>
+        </div>
+        <div id="playlists" class="list"></div>
+      </section>
+
+      <section id="settings-panel" class="settings view">
+        <h2>设置</h2>
+        <div class="settings-actions">
+          <button id="web-login-test" class="secondary">网页登录</button>
+          <button id="qr-test" class="secondary">二维码登录</button>
+          <button id="nav-test" class="secondary">登录态</button>
+          <button id="platform-test" class="secondary">平台信息</button>
+          <button id="search-debug-button" class="secondary">诊断搜索</button>
+          <button id="clear-history-button" class="secondary">清空最近播放</button>
+          <button id="clear-favorites-button" class="secondary">清空我的收藏</button>
+          <button id="clear-local-data-button" class="secondary">清空本地数据</button>
+          <button id="logout-button" class="secondary settings-logout-gap">退出登录</button>
+        </div>
+        <img id="qr-image" alt="" style="display: none; width: 220px; height: 220px; background: white; padding: 8px; border-radius: 24px;" />
+        <pre id="settings-output">等待操作...</pre>
+      </section>
+    </main>
+    <div class="player">
+      <div class="player-title">
+        <h1>ENO-M</h1>
+      </div>
+      <div class="player-top">
+        <button id="close-player-button" class="secondary player-close-button">收起</button>
+        <div id="detail-state" class="status" style="text-align: right;">未播放</div>
+      </div>
+      <img id="detail-cover" class="artwork empty-cover" alt="" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" />
+      <div id="detail-title" class="track-title">未播放</div>
+      <button id="detail-artist" class="track-artist artist-link" type="button">选择一首歌开始</button>
+      <div id="now-playing" class="status">未播放</div>
+      <div class="progress">
+        <span id="position-label" class="progress-time">0:00</span>
+        <input id="progress-range" type="range" min="0" max="0" value="0" step="1" />
+        <span id="duration-label" class="progress-time">0:00</span>
+      </div>
+      <div id="player-gesture-zone" class="player-gesture-zone">
+        <div class="detail-controls">
+          <button id="play-mode-button" class="secondary player-side-button">列表</button>
+          <button id="prev-button" class="secondary transport-button" aria-label="上一首">⏮️</button>
+          <button id="play-toggle-button" class="play-toggle-button">播放</button>
+          <button id="next-button" class="secondary transport-button" aria-label="下一首">⏭️</button>
+          <button id="player-add-button" class="secondary player-side-button">收藏</button>
+        </div>
+        <div class="gesture-hint">上滑收起 · 左右切歌</div>
+      </div>
+    </div>
+    <div id="playlist-sheet" class="sheet-backdrop" aria-hidden="true">
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="playlist-sheet-title">
+        <h2 id="playlist-sheet-title">添加到播放列表</h2>
+        <div id="playlist-sheet-actions" class="sheet-actions"></div>
+      </div>
+    </div>
+    <button id="mini-player" class="mini-player" type="button">
+      <img id="mini-cover" class="mini-cover empty-cover" alt="" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" />
+      <span class="mini-body">
+        <span id="mini-title" class="mini-title">未播放</span>
+        <span id="mini-subtitle" class="mini-subtitle">选择一首歌开始</span>
+      </span>
+      <span id="mini-toggle" class="secondary icon-button">播放</span>
+      <span class="mini-progress"><span id="mini-progress-fill" class="mini-progress-fill"></span></span>
+    </button>
+    <script>
+      const STORAGE_KEYS = {
+        queue: "eno-ios.queue",
+        currentIndex: "eno-ios.current-index",
+        history: "eno-ios.history",
+        favorites: "eno-ios.favorites",
+        favoriteArtists: "eno-ios.favorite-artists",
+        playlists: "eno-ios.playlists",
+        lastSearchKeyword: "eno-ios.last-search-keyword",
+        playMode: "eno-ios.play-mode"
+      };
+      const EMPTY_IMAGE_SRC = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+      const toast = document.getElementById("toast");
+      const mainEl = document.querySelector("main");
+      const tabLabels = Array.from(document.querySelectorAll(".tab-label"));
+      const views = Array.from(document.querySelectorAll(".view"));
+      const tabOrder = tabLabels.map((label) => label.dataset.tab);
+      const searchButton = document.getElementById("search-button");
+      const keywordInput = document.getElementById("keyword");
+      const resultsEl = document.getElementById("results");
+      const resultsTitle = document.getElementById("results-title");
+      const spaceActions = document.getElementById("space-actions");
+      const favoriteArtistButton = document.getElementById("favorite-artist-button");
+      const spacePlayAllButton = document.getElementById("space-play-all-button");
+      const spaceLoadMoreButton = document.getElementById("space-load-more-button");
+      const playlistsEl = document.getElementById("playlists");
+      const createPlaylistButton = document.getElementById("create-playlist-button");
+      const favoritesEl = document.getElementById("favorites");
+      const favoriteArtistsEl = document.getElementById("favorite-artists");
+      const favoritePlayAllButton = document.getElementById("favorite-play-all-button");
+      const favoriteReorderButton = document.getElementById("favorite-reorder-button");
+      const qrImage = document.getElementById("qr-image");
+      const nowPlaying = document.getElementById("now-playing");
+      const playerPanel = document.querySelector(".player");
+      const settingsPanel = document.getElementById("settings-panel");
+      const settingsOutput = document.getElementById("settings-output");
+      const output = settingsOutput;
+      const detailState = document.getElementById("detail-state");
+      const detailCover = document.getElementById("detail-cover");
+      const detailTitle = document.getElementById("detail-title");
+      const detailArtist = document.getElementById("detail-artist");
+      const miniPlayer = document.getElementById("mini-player");
+      const miniCover = document.getElementById("mini-cover");
+      const miniTitle = document.getElementById("mini-title");
+      const miniSubtitle = document.getElementById("mini-subtitle");
+      const miniToggle = document.getElementById("mini-toggle");
+      const playToggleButton = document.getElementById("play-toggle-button");
+      const playModeButton = document.getElementById("play-mode-button");
+      const playerAddButton = document.getElementById("player-add-button");
+      const miniProgressFill = document.getElementById("mini-progress-fill");
+      const progressRange = document.getElementById("progress-range");
+      const positionLabel = document.getElementById("position-label");
+      const durationLabel = document.getElementById("duration-label");
+      const playlistSheet = document.getElementById("playlist-sheet");
+      const playlistSheetTitle = document.getElementById("playlist-sheet-title");
+      const playlistSheetActions = document.getElementById("playlist-sheet-actions");
+      let pollTimer = null;
+      let queue = [];
+      let currentIndex = -1;
+      let isDraggingProgress = false;
+      let currentItem = null;
+      let playbackState = "stopped";
+      let toastTimer = null;
+      let lastTouchEnd = 0;
+      let gestureStart = null;
+      let tabGestureStart = null;
+      let lastSearchResults = [];
+      let activeSearch = null;
+      let activeSpace = null;
+      let favoriteReorderMode = false;
+      let playMode = readStorage(STORAGE_KEYS.playMode, "list");
+
+      document.addEventListener("touchend", (event) => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, { passive: false });
+
+      function setOutput(value) {
+        const text = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+        output.textContent = text;
+        settingsOutput.textContent = text;
+        if (settingsPanel.classList.contains("active")) {
+          requestAnimationFrame(() => {
+            settingsOutput.scrollIntoView({ block: "nearest", behavior: "smooth" });
+          });
+        }
+      }
+
+      function showToast(message, tone = "") {
+        if (toastTimer) clearTimeout(toastTimer);
+        toast.className = `toast show${tone ? ` ${tone}` : ""}`;
+        toast.textContent = message;
+        toastTimer = setTimeout(() => {
+          toast.className = "toast";
+        }, 2600);
+      }
+
+      function closePlaylistSheet() {
+        playlistSheet.classList.remove("show");
+        playlistSheet.setAttribute("aria-hidden", "true");
+        playlistSheetActions.innerHTML = "";
+      }
+
+      playlistSheet.addEventListener("click", (event) => {
+        if (event.target === playlistSheet) closePlaylistSheet();
+      });
+
+      async function confirmDelete(message, action) {
+        if (window.confirm(message)) {
+          await action();
+        }
+      }
+
+      async function confirmLogout(action) {
+        if (window.confirm("ENO-M 确认退出登录\n\n这会清空当前 B 站登录状态。")) {
+          await action();
+        }
+      }
+
+      function errorMessage(error) {
+        return error && error.message ? error.message : String(error);
+      }
+
+      async function withBusy(button, label, task) {
+        const original = button ? button.textContent : "";
+        if (button) {
+          button.disabled = true;
+          button.textContent = label;
+        }
+        try {
+          return await task();
+        } finally {
+          if (button) {
+            button.disabled = false;
+            button.textContent = original;
+          }
+        }
+      }
+
+      function setPlayerOpen(open) {
+        playerPanel.classList.toggle("open", open);
+        document.body.classList.toggle("player-open", open);
+      }
+
+      function readStorage(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function writeStorage(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+
+      function switchTab(tabId, direction = 0) {
+        const currentIndex = activeTabIndex();
+        const nextIndex = tabOrder.indexOf(tabId);
+        if (nextIndex < 0 || nextIndex === currentIndex) return;
+
+        const motion = direction || (nextIndex >= currentIndex ? 1 : -1);
+        document.body.classList.remove("tab-forward", "tab-back");
+
+        const applyTabState = () => {
+          document.body.classList.add(motion >= 0 ? "tab-forward" : "tab-back");
+          document.body.classList.toggle("home-active", tabId === "home-view");
+          for (const view of views) {
+            view.classList.toggle("active", view.id === tabId);
+          }
+          for (const label of tabLabels) {
+            label.classList.toggle("active", label.dataset.tab === tabId);
+          }
+        };
+
+        requestAnimationFrame(() => {
+          applyTabState();
+        });
+
+      }
+
+      function activeTabIndex() {
+        const index = tabOrder.findIndex((tabId) => document.getElementById(tabId).classList.contains("active"));
+        return index >= 0 ? index : 0;
+      }
+
+      function switchRelativeTab(delta) {
+        const index = activeTabIndex();
+        const next = (index + delta + tabOrder.length) % tabOrder.length;
+        switchTab(tabOrder[next], delta);
+      }
+
+      function shouldIgnoreTabSwipe(target) {
+        return Boolean(target.closest("input, textarea, select, summary, .mini-player, .player, pre, input[type='range']"));
+      }
+
+      function stripHtml(value) {
+        const div = document.createElement("div");
+        div.innerHTML = value || "";
+        return div.textContent || div.innerText || "";
+      }
+
+      function normalizePic(pic) {
+        if (!pic) return "";
+        if (pic.startsWith("//")) return `https:${pic}`;
+        if (pic.startsWith("/")) return `https://i0.hdslb.com${pic}`;
+        if (pic.startsWith("http://")) return pic.replace(/^http:\/\//, "https://");
+        return pic;
+      }
+
+      function applyEmptyCover(image) {
+        image.onerror = null;
+        image.removeAttribute("srcset");
+        image.src = EMPTY_IMAGE_SRC;
+        image.classList.add("empty-cover");
+      }
+
+      function pickAudioUrl(audio) {
+        if (!audio) return "";
+        return audio.baseUrl || audio.base_url || (audio.backupUrl && audio.backupUrl[0]) || (audio.backup_url && audio.backup_url[0]) || "";
+      }
+
+      function currentTitle() {
+        return currentItem ? stripHtml(currentItem.title) : "未播放";
+      }
+
+      function currentArtist() {
+        return currentItem && currentItem.author ? currentItem.author : "选择一首歌开始";
+      }
+
+      function currentArtistMid() {
+        if (!currentItem) return 0;
+        return Number(currentItem.mid || currentItem.author_mid || currentItem.owner_mid || 0);
+      }
+
+      function setCoverImage(image, cover) {
+        if (cover) {
+          image.onerror = () => applyEmptyCover(image);
+          image.src = cover;
+          image.classList.remove("empty-cover");
+        } else {
+          applyEmptyCover(image);
+        }
+      }
+
+      function updatePlayerSurface(statusText = "") {
+        const title = currentTitle();
+        const artist = currentArtist();
+        const cover = currentItem ? normalizePic(currentItem.pic) : "";
+        setCoverImage(detailCover, cover);
+        setCoverImage(miniCover, cover);
+        detailTitle.textContent = title;
+        detailArtist.textContent = artist;
+        detailArtist.classList.toggle("available", currentArtistMid() > 0);
+        miniTitle.textContent = title;
+        miniSubtitle.textContent = statusText || artist;
+        const stateText = statusText || playbackStateText(playbackState);
+        const isActivePlayback = playbackState === "playing" || playbackState === "buffering";
+        const playbackLabel = playbackState === "loading" ? "加载" : (isActivePlayback ? "暂停" : "播放");
+        detailState.textContent = stateText;
+        miniToggle.textContent = playbackLabel;
+        playToggleButton.textContent = playbackLabel;
+        playerAddButton.disabled = !currentItem;
+        playerAddButton.textContent = currentItem && isFavorite(currentItem) ? "已藏" : "收藏";
+      }
+
+      function updatePlayModeButton() {
+        const labels = {
+          list: "列表",
+          single: "单曲",
+          shuffle: "随机"
+        };
+        playModeButton.textContent = labels[playMode] || labels.list;
+      }
+
+      function togglePlayMode() {
+        const modes = ["list", "single", "shuffle"];
+        const index = modes.indexOf(playMode);
+        playMode = modes[(index + 1 + modes.length) % modes.length];
+        writeStorage(STORAGE_KEYS.playMode, playMode);
+        updatePlayModeButton();
+        showToast(playModeButton.textContent, "success");
+      }
+
+      function addCurrentToList() {
+        if (!currentItem) {
+          showToast("先播放一首歌");
+          return;
+        }
+        showPlaylistSheet(currentItem);
+      }
+
+      function playbackStateText(state) {
+        return {
+          loading: "加载中",
+          ready: "已就绪",
+          buffering: "缓冲中",
+          playing: "正在播放",
+          paused: "已暂停",
+          stopped: "已停止",
+          ended: "播放结束",
+          failed: "播放失败",
+          unknown: "状态未知"
+        }[state] || state;
+      }
+
+      function formatTime(seconds) {
+        if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
+        const total = Math.floor(seconds);
+        const minutes = Math.floor(total / 60);
+        const rest = String(total % 60).padStart(2, "0");
+        return `${minutes}:${rest}`;
+      }
+
+      function updateProgress(position, duration) {
+        const safePosition = Number.isFinite(position) ? Math.max(0, position) : 0;
+        const safeDuration = Number.isFinite(duration) ? Math.max(0, duration) : 0;
+        progressRange.max = String(Math.floor(safeDuration));
+        if (!isDraggingProgress) {
+          progressRange.value = String(Math.floor(Math.min(safePosition, safeDuration || safePosition)));
+        }
+        positionLabel.textContent = formatTime(safePosition);
+        durationLabel.textContent = formatTime(safeDuration);
+        const percent = safeDuration > 0 ? Math.min(100, (safePosition / safeDuration) * 100) : 0;
+        miniProgressFill.style.width = `${percent}%`;
+      }
+
+      function persistQueue() {
+        writeStorage(STORAGE_KEYS.queue, queue);
+        writeStorage(STORAGE_KEYS.currentIndex, currentIndex);
+      }
+
+      function addHistoryItem(item) {
+        const history = readStorage(STORAGE_KEYS.history, []);
+        const stored = history.find((entry) => entry.bvid === item.bvid);
+        const nextItem = {
+          ...item,
+          playCount: Number(stored && stored.playCount ? stored.playCount : 0) + 1,
+          lastPlayedAt: Date.now()
+        };
+        const next = [nextItem, ...history.filter((entry) => entry.bvid !== item.bvid)].slice(0, 30);
+        writeStorage(STORAGE_KEYS.history, next);
+        renderPlaylists();
+      }
+
+      function mostPlayedItems(limit = 12) {
+        return readStorage(STORAGE_KEYS.history, [])
+          .slice()
+          .sort((a, b) => {
+            const countDiff = Number(b.playCount || 1) - Number(a.playCount || 1);
+            if (countDiff) return countDiff;
+            return Number(b.lastPlayedAt || 0) - Number(a.lastPlayedAt || 0);
+          })
+          .slice(0, limit);
+      }
+
+      async function playAll(items, startIndex = 0) {
+        if (!items.length) {
+          showToast("没有可以播放的内容");
+          return;
+        }
+
+        queue = items;
+        currentIndex = startIndex;
+        renderResults(queue, currentIndex);
+        document.getElementById("results-section").open = true;
+        persistQueue();
+        await playVideo(queue[currentIndex]);
+      }
+
+      function readFavorites() {
+        return readStorage(STORAGE_KEYS.favorites, []);
+      }
+
+      function readFavoriteArtists() {
+        return readStorage(STORAGE_KEYS.favoriteArtists, []);
+      }
+
+      function readPlaylists() {
+        return readStorage(STORAGE_KEYS.playlists, []);
+      }
+
+      function writePlaylists(playlists) {
+        writeStorage(STORAGE_KEYS.playlists, playlists);
+        renderPlaylists(playlists);
+      }
+
+      function playlistId() {
+        return `playlist-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      }
+
+      function isFavorite(item) {
+        return readFavorites().some((stored) => stored.bvid === item.bvid);
+      }
+
+      function isFavoriteArtist(mid) {
+        return readFavoriteArtists().some((stored) => Number(stored.mid) === Number(mid));
+      }
+
+      function toggleFavorite(item) {
+        const favorites = readFavorites();
+        const exists = favorites.some((stored) => stored.bvid === item.bvid);
+        const next = exists
+          ? favorites.filter((stored) => stored.bvid !== item.bvid)
+          : [item, ...favorites].slice(0, 100);
+        writeStorage(STORAGE_KEYS.favorites, next);
+        renderFavorites(next);
+        renderPlaylists();
+        renderResults(queue, currentIndex);
+        updatePlayerSurface();
+      }
+
+      function removeFavorite(item) {
+        const next = readFavorites().filter((stored) => stored.bvid !== item.bvid);
+        writeStorage(STORAGE_KEYS.favorites, next);
+        renderFavorites(next);
+        renderPlaylists();
+        renderResults(queue, currentIndex);
+        updatePlayerSurface();
+        showToast("已从收藏移除", "success");
+      }
+
+      function removeFavoriteArtist(artist) {
+        const next = readFavoriteArtists().filter((stored) => Number(stored.mid) !== Number(artist.mid));
+        writeStorage(STORAGE_KEYS.favoriteArtists, next);
+        renderFavoriteArtists(next);
+        updateFavoriteArtistButton();
+        showToast("已从收藏移除", "success");
+      }
+
+      function reorderFavorite(fromIndex, toIndex) {
+        const favorites = readFavorites();
+        if (toIndex < 0 || toIndex >= favorites.length || fromIndex === toIndex) return fromIndex;
+        const [item] = favorites.splice(fromIndex, 1);
+        favorites.splice(toIndex, 0, item);
+        writeStorage(STORAGE_KEYS.favorites, favorites);
+        return toIndex;
+      }
+
+      function beginFavoriteDrag(row, startIndex, startY) {
+        let currentDragIndex = startIndex;
+        let anchorY = startY;
+        row.classList.add("dragging");
+
+        function endDrag() {
+          row.classList.remove("dragging");
+          row.style.transform = "";
+          document.removeEventListener("touchmove", onMove);
+          document.removeEventListener("touchend", endDrag);
+          document.removeEventListener("touchcancel", endDrag);
+        }
+
+        function onMove(event) {
+          event.preventDefault();
+          const touch = event.touches[0];
+          if (!touch) return;
+          const dy = touch.clientY - anchorY;
+          row.style.transform = `translateY(${dy}px) scale(1.015)`;
+
+          const rows = Array.from(favoritesEl.querySelectorAll(".item"));
+          const targetIndex = rows.findIndex((candidate) => {
+            if (candidate === row) return false;
+            const rect = candidate.getBoundingClientRect();
+            return touch.clientY >= rect.top && touch.clientY <= rect.bottom;
+          });
+
+          if (targetIndex >= 0 && targetIndex !== currentDragIndex) {
+            const targetRow = rows[targetIndex];
+            const previousIndex = currentDragIndex;
+            row.style.transform = "";
+            currentDragIndex = reorderFavorite(currentDragIndex, targetIndex);
+            if (targetIndex > previousIndex) {
+              favoritesEl.insertBefore(row, targetRow.nextSibling);
+            } else {
+              favoritesEl.insertBefore(row, targetRow);
+            }
+            anchorY = touch.clientY;
+          }
+        }
+
+        document.addEventListener("touchmove", onMove, { passive: false });
+        document.addEventListener("touchend", endDrag, { once: true });
+        document.addEventListener("touchcancel", endDrag, { once: true });
+      }
+
+      function toggleFavoriteArtist(artist = activeSpace) {
+        if (!artist || !artist.mid) {
+          showToast("没有可收藏的 UP 主");
+          return;
+        }
+
+        const storedArtists = readFavoriteArtists();
+        const exists = storedArtists.some((stored) => Number(stored.mid) === Number(artist.mid));
+        const item = {
+          mid: Number(artist.mid),
+          author: artist.author || "未知 UP"
+        };
+        const next = exists
+          ? storedArtists.filter((stored) => Number(stored.mid) !== Number(artist.mid))
+          : [item, ...storedArtists].slice(0, 100);
+        writeStorage(STORAGE_KEYS.favoriteArtists, next);
+        renderFavoriteArtists(next);
+        updateFavoriteArtistButton();
+        showToast(exists ? "已取消收藏 UP 主" : "已收藏 UP 主", "success");
+      }
+
+      function createPlaylist() {
+        const name = window.prompt("播放列表名称");
+        const trimmed = name ? name.trim() : "";
+        if (!trimmed) return;
+        const playlists = readPlaylists();
+        playlists.push({ id: playlistId(), name: trimmed, items: [] });
+        writePlaylists(playlists);
+        showToast("播放列表已创建", "success");
+      }
+
+      function renamePlaylist(id) {
+        const playlists = readPlaylists();
+        const playlist = playlists.find((item) => item.id === id);
+        if (!playlist) return;
+        const name = window.prompt("新的播放列表名称", playlist.name);
+        const trimmed = name ? name.trim() : "";
+        if (!trimmed) return;
+        playlist.name = trimmed;
+        writePlaylists(playlists);
+        showToast("播放列表已重命名", "success");
+      }
+
+      function deletePlaylist(id) {
+        const playlists = readPlaylists();
+        const playlist = playlists.find((item) => item.id === id);
+        if (!playlist) return;
+        confirmDelete(`这会删除播放列表“${playlist.name}”，列表里的歌曲记录也会被移除。`, async () => {
+          writePlaylists(playlists.filter((item) => item.id !== id));
+          showToast("播放列表已删除", "success");
+        });
+      }
+
+      function addToPlaylist(playlistIdValue, item) {
+        const playlists = readPlaylists();
+        const playlist = playlists.find((entry) => entry.id === playlistIdValue);
+        if (!playlist) return;
+        const exists = (playlist.items || []).some((stored) => stored.bvid === item.bvid);
+        if (!exists) {
+          playlist.items = [item, ...(playlist.items || [])].slice(0, 200);
+          writePlaylists(playlists);
+        }
+        showToast(exists ? "播放列表里已经有这首歌" : "已加入播放列表", exists ? "" : "success");
+      }
+
+      function removeFromPlaylist(playlistIdValue, item) {
+        const playlists = readPlaylists();
+        const playlist = playlists.find((entry) => entry.id === playlistIdValue);
+        if (!playlist) return;
+        playlist.items = (playlist.items || []).filter((stored) => stored.bvid !== item.bvid);
+        writePlaylists(playlists);
+        showToast("已从播放列表移除", "success");
+      }
+
+      function removeFromHistory(item) {
+        const next = readStorage(STORAGE_KEYS.history, []).filter((stored) => stored.bvid !== item.bvid);
+        writeStorage(STORAGE_KEYS.history, next);
+        renderPlaylists();
+        showToast("已从最近播放移除", "success");
+      }
+
+      function showPlaylistSheet(item) {
+        const playlists = readPlaylists();
+        playlistSheetTitle.textContent = "添加到";
+        playlistSheetActions.innerHTML = "";
+
+        const favoriteAction = document.createElement("button");
+        favoriteAction.className = "secondary";
+        favoriteAction.type = "button";
+        favoriteAction.textContent = isFavorite(item) ? "从我的收藏移除" : "加入我的收藏";
+        favoriteAction.addEventListener("click", () => {
+          toggleFavorite(item);
+          closePlaylistSheet();
+        });
+        playlistSheetActions.appendChild(favoriteAction);
+
+        if (!playlists.length) {
+          const empty = document.createElement("button");
+          empty.className = "secondary";
+          empty.type = "button";
+          empty.textContent = "先到“列表”里新建播放列表";
+          empty.addEventListener("click", closePlaylistSheet);
+          playlistSheetActions.appendChild(empty);
+        } else {
+          for (const playlist of playlists) {
+            const button = document.createElement("button");
+            button.className = "secondary";
+            button.type = "button";
+            button.textContent = playlist.name;
+            button.addEventListener("click", () => {
+              addToPlaylist(playlist.id, item);
+              closePlaylistSheet();
+            });
+            playlistSheetActions.appendChild(button);
+          }
+        }
+
+        const cancel = document.createElement("button");
+        cancel.className = "secondary";
+        cancel.type = "button";
+        cancel.textContent = "取消";
+        cancel.addEventListener("click", closePlaylistSheet);
+        playlistSheetActions.appendChild(cancel);
+        playlistSheet.classList.add("show");
+        playlistSheet.setAttribute("aria-hidden", "false");
+      }
+
+      function updateFavoriteArtistButton() {
+        if (!activeSpace || !activeSpace.mid) {
+          favoriteArtistButton.textContent = "收藏UP";
+          favoriteArtistButton.disabled = true;
+          return;
+        }
+
+        favoriteArtistButton.disabled = false;
+        favoriteArtistButton.textContent = isFavoriteArtist(activeSpace.mid) ? "取消收藏" : "收藏UP";
+      }
+
+      function createMediaButton(item, index, onPlay, options = {}) {
+        const row = document.createElement("div");
+        row.className = "item";
+        row.dataset.index = String(index);
+        let longPressTimer = null;
+        let longPressTriggered = false;
+        let longPressStart = null;
+
+        function startLongPress(clientX, clientY) {
+          longPressTriggered = false;
+          longPressStart = { x: clientX, y: clientY };
+          longPressTimer = setTimeout(() => {
+            longPressTriggered = true;
+            longPressTimer = null;
+            showPlaylistSheet(item);
+          }, 520);
+        }
+
+        function cancelLongPress() {
+          if (longPressTimer) clearTimeout(longPressTimer);
+          longPressTimer = null;
+          longPressStart = null;
+        }
+
+        function cancelLongPressIfMoved(clientX, clientY) {
+          if (!longPressStart) return;
+          const dx = clientX - longPressStart.x;
+          const dy = clientY - longPressStart.y;
+          if (Math.hypot(dx, dy) > 16) cancelLongPress();
+        }
+
+        if (options.longPressPlaylist) {
+          row.addEventListener("touchstart", (event) => {
+            if (event.target.closest("button")) return;
+            const touch = event.touches[0];
+            if (touch) startLongPress(touch.clientX, touch.clientY);
+          }, { passive: true });
+          row.addEventListener("touchmove", (event) => {
+            const touch = event.touches[0];
+            if (touch) cancelLongPressIfMoved(touch.clientX, touch.clientY);
+          }, { passive: true });
+          row.addEventListener("touchend", cancelLongPress, { passive: true });
+          row.addEventListener("touchcancel", cancelLongPress, { passive: true });
+          row.addEventListener("mousedown", (event) => {
+            if (event.target.closest("button")) return;
+            startLongPress(event.clientX, event.clientY);
+          });
+          row.addEventListener("mousemove", (event) => {
+            cancelLongPressIfMoved(event.clientX, event.clientY);
+          });
+          row.addEventListener("mouseup", cancelLongPress);
+          row.addEventListener("mouseleave", cancelLongPress);
+          row.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+            cancelLongPress();
+            showPlaylistSheet(item);
+          });
+        }
+
+        const playButton = document.createElement("button");
+        playButton.className = "item-play";
+        playButton.type = "button";
+        playButton.addEventListener("click", (event) => {
+          if (longPressTriggered) {
+            event.preventDefault();
+            longPressTriggered = false;
+            return;
+          }
+          onPlay();
+        });
+
+        const img = document.createElement("img");
+        const pic = normalizePic(item.pic);
+        if (pic) {
+          img.onerror = () => applyEmptyCover(img);
+          img.src = pic;
+        } else {
+          applyEmptyCover(img);
+        }
+        img.alt = "";
+
+        const body = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "title";
+        title.textContent = stripHtml(item.title);
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = `${item.author || "未知 UP"} · ${item.duration || ""}`;
+
+        body.append(title, meta);
+        playButton.append(img, body);
+
+        const favoriteButton = document.createElement("button");
+        const favorite = isFavorite(item);
+        favoriteButton.className = "favorite-button";
+        favoriteButton.type = "button";
+
+        if (options.reorderAction) {
+          const handle = document.createElement("button");
+          handle.className = "secondary reorder-handle";
+          handle.type = "button";
+          handle.textContent = "☰";
+          handle.setAttribute("aria-label", "拖动调整顺序");
+          handle.addEventListener("touchstart", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const touch = event.touches[0];
+            if (touch) beginFavoriteDrag(row, index, touch.clientY);
+          }, { passive: false });
+          row.append(playButton, handle);
+          return row;
+        }
+
+        if (options.removeAction) {
+          favoriteButton.classList.add("remove-action");
+          favoriteButton.textContent = "-";
+          favoriteButton.setAttribute("aria-label", "从收藏中删除");
+          favoriteButton.addEventListener("click", () => options.onRemove ? options.onRemove(item) : removeFavorite(item));
+        } else if (options.listRemoveAction) {
+          favoriteButton.classList.add("active");
+          favoriteButton.textContent = "✓";
+          favoriteButton.setAttribute("aria-label", "从列表中删除");
+          favoriteButton.addEventListener("click", () => {
+            if (options.onRemove) options.onRemove(item);
+          });
+        } else if (options.addOnly && favorite) {
+          favoriteButton.classList.add("active", "passive");
+          favoriteButton.textContent = "✓";
+          favoriteButton.setAttribute("aria-label", "已收藏");
+          favoriteButton.disabled = true;
+        } else if (options.playlistAction) {
+          favoriteButton.classList.toggle("active", favorite);
+          favoriteButton.textContent = "+";
+          favoriteButton.setAttribute("aria-label", "添加到收藏或播放列表");
+          favoriteButton.addEventListener("click", () => showPlaylistSheet(item));
+        } else {
+          favoriteButton.classList.toggle("active", favorite);
+          favoriteButton.textContent = favorite ? "-" : "+";
+          favoriteButton.setAttribute("aria-label", favorite ? "取消收藏" : "收藏");
+          favoriteButton.addEventListener("click", () => toggleFavorite(item));
+        }
+
+        row.append(playButton, favoriteButton);
+        return row;
+      }
+
+      function createArtistButton(artist) {
+        const row = document.createElement("div");
+        row.className = "item artist-item";
+
+        const openButton = document.createElement("button");
+        openButton.className = "artist-play";
+        openButton.type = "button";
+        openButton.addEventListener("click", async () => {
+          await openArtistSpace(artist);
+        });
+
+        const title = document.createElement("div");
+        title.className = "title";
+        title.textContent = artist.author || "未知 UP";
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = `UID ${artist.mid}`;
+        openButton.append(title, meta);
+
+        const favoriteButton = document.createElement("button");
+        favoriteButton.className = "favorite-button active remove-action";
+        favoriteButton.type = "button";
+        favoriteButton.textContent = "-";
+        favoriteButton.setAttribute("aria-label", "从收藏中删除 UP 主");
+        favoriteButton.addEventListener("click", () => removeFavoriteArtist(artist));
+
+        row.append(openButton, favoriteButton);
+        return row;
+      }
+
+      async function invokeBili(contentScriptQuery, params = {}) {
+        return window.ipcRenderer.invoke("bili-api", { contentScriptQuery, ...params });
+      }
+
+      function showSearchResults() {
+        activeSpace = null;
+        resultsTitle.textContent = "搜索结果";
+        spaceActions.hidden = true;
+        spaceLoadMoreButton.hidden = !(activeSearch && activeSearch.hasMore);
+        document.getElementById("results-section").open = true;
+        updateFavoriteArtistButton();
+        renderResults(lastSearchResults, currentIndex);
+      }
+
+      function normalizeSpaceVideos(videos, author, mid) {
+        return videos
+          .filter((item) => item && item.bvid)
+          .map((item) => ({
+            bvid: item.bvid,
+            aid: item.aid,
+            title: item.title,
+            pic: item.pic,
+            author: item.author || author,
+            mid: item.mid || mid,
+            duration: item.length || item.duration || "",
+            play: item.play,
+            created: item.created
+          }));
+      }
+
+      async function openArtistSpace(artist = null) {
+        const mid = artist && artist.mid ? Number(artist.mid) : currentArtistMid();
+        const author = artist && artist.author ? artist.author : currentArtist();
+        if (!mid) {
+          showToast("这条结果没有 UP 主主页信息");
+          return;
+        }
+
+        setPlayerOpen(false);
+        switchTab("home-view");
+        document.getElementById("results-section").open = true;
+        activeSpace = {
+          mid,
+          author,
+          page: 1,
+          pageSize: 30,
+          total: 0,
+          items: []
+        };
+        resultsTitle.textContent = `${author} 的视频`;
+        spaceActions.hidden = false;
+        activeSearch = null;
+        spaceLoadMoreButton.hidden = true;
+        updateFavoriteArtistButton();
+        resultsEl.innerHTML = '<div class="empty">正在加载 UP 主视频...</div>';
+        await loadSpaceVideos();
+      }
+
+      async function loadSpaceVideos() {
+        if (!activeSpace) return;
+
+        await withBusy(spaceLoadMoreButton, "加载中", async () => {
+          try {
+            const res = await window.ipcRenderer.invoke("bili-space-videos", {
+              mid: activeSpace.mid,
+              page: activeSpace.page,
+              page_size: activeSpace.pageSize
+            });
+            if (res && typeof res.code === "number" && res.code !== 0) {
+              setOutput(res);
+              throw new Error(`${res.message || "Bilibili API 错误"}（code: ${res.code}）`);
+            }
+
+            const data = (res && res.data) || {};
+            const list = (data.list && data.list.vlist) || [];
+            const pageInfo = data.page || {};
+            const items = normalizeSpaceVideos(list, activeSpace.author, activeSpace.mid);
+            activeSpace.total = Number(pageInfo.count || activeSpace.total || 0);
+            activeSpace.items = [...activeSpace.items, ...items];
+            activeSpace.page += 1;
+            const activeIndex = currentItem
+              ? activeSpace.items.findIndex((item) => item.bvid === currentItem.bvid)
+              : -1;
+            renderResults(activeSpace.items, activeIndex);
+
+        const hasMore = items.length >= activeSpace.pageSize
+              && (!activeSpace.total || activeSpace.items.length < activeSpace.total);
+            spaceLoadMoreButton.hidden = !hasMore;
+            setOutput(`已加载 ${activeSpace.items.length}${activeSpace.total ? ` / ${activeSpace.total}` : ""} 条视频`);
+            if (!activeSpace.items.length) {
+              resultsEl.innerHTML = '<div class="empty">这个 UP 主暂时没有公开视频。</div>';
+            }
+          } catch (error) {
+            const message = errorMessage(error);
+            setOutput(message);
+            showToast(message, "error");
+          }
+        });
+      }
+
+      async function loadMoreSearchResults() {
+        if (!activeSearch || activeSpace) return;
+
+        await withBusy(spaceLoadMoreButton, "加载中", async () => {
+          try {
+            const res = await window.ipcRenderer.invoke("bili-search", {
+              keyword: activeSearch.keyword,
+              page: activeSearch.page,
+              page_size: activeSearch.pageSize
+            });
+            if (res && typeof res.code === "number" && res.code !== 0) {
+              setOutput(res);
+              throw new Error(`${res.message || "Bilibili API 错误"}（code: ${res.code}）`);
+            }
+
+            const items = res && res.data && res.data.result ? res.data.result.filter((item) => item.bvid) : [];
+            lastSearchResults = [...lastSearchResults, ...items];
+            activeSearch.page += 1;
+            activeSearch.hasMore = items.length >= activeSearch.pageSize;
+            renderResults(lastSearchResults, currentIndex);
+            spaceLoadMoreButton.hidden = !activeSearch.hasMore;
+            setOutput(`已加载 ${lastSearchResults.length} 条搜索结果`);
+            showToast(`已加载 ${items.length} 条`, "success");
+          } catch (error) {
+            const message = errorMessage(error);
+            setOutput(message);
+            showToast(message, "error");
+          }
+        });
+      }
+
+      async function search() {
+        const keyword = keywordInput.value.trim();
+        if (!keyword) {
+          showToast("请输入搜索关键词");
+          return;
+        }
+
+        await withBusy(searchButton, "搜索中", async () => {
+          resultsEl.innerHTML = "";
+          setOutput("搜索中...");
+          const pageSize = 30;
+
+          try {
+            writeStorage(STORAGE_KEYS.lastSearchKeyword, keyword);
+            const res = await window.ipcRenderer.invoke("bili-search", { keyword, page: 1, page_size: pageSize });
+            if (res && typeof res.code === "number" && res.code !== 0) {
+              setOutput(res);
+              throw new Error(`${res.message || "Bilibili API 错误"}（code: ${res.code}）`);
+            }
+            const items = res && res.data && res.data.result ? res.data.result.filter((item) => item.bvid) : [];
+            lastSearchResults = items;
+            activeSpace = null;
+            activeSearch = {
+              keyword,
+              page: 2,
+              pageSize,
+              hasMore: items.length >= pageSize
+            };
+            resultsTitle.textContent = "搜索结果";
+            spaceActions.hidden = true;
+            spaceLoadMoreButton.hidden = !activeSearch.hasMore;
+            document.getElementById("results-section").open = true;
+            updateFavoriteArtistButton();
+            renderResults(items);
+            persistQueue();
+            setOutput(`找到 ${items.length} 条结果`);
+            showToast(`找到 ${items.length} 条结果`, "success");
+          } catch (error) {
+            const message = errorMessage(error);
+            setOutput(message);
+            showToast(message, "error");
+          }
+        });
+      }
+
+      function renderResults(items, activeIndex = -1) {
+        queue = items;
+        currentIndex = activeIndex;
+        resultsEl.innerHTML = "";
+        for (const [index, item] of items.entries()) {
+          resultsEl.appendChild(createMediaButton(item, index, () => playAt(index), {
+            longPressPlaylist: true,
+            playlistAction: true
+          }));
+        }
+        if (!items.length) resultsEl.innerHTML = '<div class="empty">没有搜索结果。</div>';
+        markActive();
+      }
+
+      function renderFavorites(items = readFavorites()) {
+        favoritesEl.innerHTML = "";
+        if (!items.length) {
+          favoritesEl.innerHTML = '<div class="empty">还没有收藏歌曲。</div>';
+          return;
+        }
+
+        for (const [index, item] of items.entries()) {
+          const row = createMediaButton(item, index, async () => {
+            queue = items;
+            currentIndex = index;
+            renderResults(queue, currentIndex);
+            persistQueue();
+            await playVideo(item);
+          }, favoriteReorderMode
+            ? { reorderAction: true, total: items.length }
+            : { removeAction: true, onRemove: removeFavorite });
+          favoritesEl.appendChild(row);
+        }
+      }
+
+      function renderFavoriteArtists(items = readFavoriteArtists()) {
+        favoriteArtistsEl.innerHTML = "";
+        if (!items.length) {
+          favoriteArtistsEl.innerHTML = '<div class="empty">还没有收藏 UP 主。</div>';
+          return;
+        }
+
+        for (const artist of items) {
+          const row = createArtistButton(artist);
+          favoriteArtistsEl.appendChild(row);
+        }
+      }
+
+      function createPlaylistCard({ id, name, items, builtin = false }) {
+        const card = document.createElement("details");
+        card.className = "section";
+
+        const summary = document.createElement("summary");
+        const title = document.createElement("h2");
+        title.textContent = name;
+        summary.appendChild(title);
+
+        const actions = document.createElement("div");
+        actions.className = "playlist-actions";
+        actions.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        });
+        const playButton = document.createElement("button");
+        playButton.className = "secondary";
+        playButton.type = "button";
+        playButton.textContent = "播放";
+        playButton.addEventListener("click", () => playAll(items));
+        actions.appendChild(playButton);
+        if (!builtin) {
+          const renameButton = document.createElement("button");
+          renameButton.className = "secondary";
+          renameButton.type = "button";
+          renameButton.textContent = "重命名";
+          renameButton.addEventListener("click", () => renamePlaylist(id));
+          actions.appendChild(renameButton);
+
+          const deleteButton = document.createElement("button");
+          deleteButton.className = "secondary";
+          deleteButton.type = "button";
+          deleteButton.textContent = "删除";
+          deleteButton.addEventListener("click", () => deletePlaylist(id));
+          actions.appendChild(deleteButton);
+        }
+        summary.appendChild(actions);
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = `${items.length} 首`;
+        card.append(summary, meta);
+
+        if (items.length) {
+          const list = document.createElement("div");
+          list.className = "playlist-items";
+          for (const [index, item] of items.entries()) {
+            const rowOptions = id === "builtin-history"
+              ? { playlistAction: true }
+              : {
+                listRemoveAction: true,
+                onRemove: (target) => {
+                  if (id === "builtin-favorites") {
+                    removeFavorite(target);
+                  } else {
+                    removeFromPlaylist(id, target);
+                  }
+                }
+              };
+            list.appendChild(createMediaButton(item, index, async () => {
+              queue = items;
+              currentIndex = index;
+              renderResults(queue, currentIndex);
+              persistQueue();
+              await playVideo(item);
+            }, rowOptions));
+          }
+          card.appendChild(list);
+        }
+
+        return card;
+      }
+
+      function renderPlaylists(items = readPlaylists()) {
+        playlistsEl.innerHTML = "";
+        playlistsEl.appendChild(createPlaylistCard({
+          id: "builtin-favorites",
+          name: "我的收藏",
+          items: readFavorites(),
+          builtin: true
+        }));
+        playlistsEl.appendChild(createPlaylistCard({
+          id: "builtin-history",
+          name: "最近播放",
+          items: readStorage(STORAGE_KEYS.history, []),
+          builtin: true
+        }));
+
+        for (const playlist of items) {
+          playlistsEl.appendChild(createPlaylistCard({
+            id: playlist.id,
+            name: playlist.name,
+            items: playlist.items || [],
+            builtin: false
+          }));
+        }
+      }
+
+      function markActive() {
+        for (const node of resultsEl.querySelectorAll(".item")) {
+          node.classList.toggle("active", Number(node.dataset.index) === currentIndex);
+        }
+      }
+
+      async function playAt(index) {
+        if (!queue.length) return;
+        const normalized = ((index % queue.length) + queue.length) % queue.length;
+        currentIndex = normalized;
+        markActive();
+        persistQueue();
+        await playVideo(queue[normalized]);
+      }
+
+      async function playNext(autoAdvance = false) {
+        if (!queue.length) {
+          showToast("当前没有可播放队列");
+          return;
+        }
+
+        if (autoAdvance && playMode === "single" && currentIndex >= 0) {
+          await playAt(currentIndex);
+          return;
+        }
+
+        if (playMode === "shuffle" && queue.length > 1) {
+          let nextIndex = currentIndex;
+          while (nextIndex === currentIndex) {
+            nextIndex = Math.floor(Math.random() * queue.length);
+          }
+          await playAt(nextIndex);
+          return;
+        }
+
+        await playAt(currentIndex < 0 ? 0 : currentIndex + 1);
+      }
+
+      async function playPrevious() {
+        if (!queue.length) {
+          showToast("当前没有可播放队列");
+          return;
+        }
+        await playAt(currentIndex < 0 ? 0 : currentIndex - 1);
+      }
+
+      async function togglePlayback() {
+        if (playbackState === "loading") {
+          showToast("正在加载音频");
+        } else if (playbackState === "playing" || playbackState === "buffering") {
+          await window.ipcRenderer.invoke("native-audio-pause");
+        } else if (playbackState === "paused" || playbackState === "ready") {
+          await window.ipcRenderer.invoke("native-audio-resume");
+        } else if (currentItem) {
+          await playVideo(currentItem);
+        } else {
+          await playNext();
+        }
+      }
+
+      async function playVideo(item) {
+        const title = stripHtml(item.title);
+        currentItem = item;
+        playbackState = "loading";
+        nowPlaying.textContent = `准备播放：${title}`;
+        updatePlayerSurface("准备播放");
+        setOutput("获取播放地址...");
+
+        try {
+          const info = await invokeBili("getVideoInfo", { bvid: item.bvid });
+          const pages = (info.data && info.data.pages) || [];
+          const cid = item.cid || (info.data && info.data.cid) || (pages[0] && pages[0].cid);
+          if (!cid) throw new Error("没有找到 cid");
+
+          const dashRes = await invokeBili("getAudioOfVideo", { bvid: item.bvid, cid });
+          const dash = dashRes && dashRes.data && dashRes.data.dash;
+          const audio = dash && dash.audio && dash.audio[0];
+          const url = pickAudioUrl(audio);
+          if (!url) throw new Error("没有可播放的音频地址");
+
+          const result = await window.ipcRenderer.invoke("native-audio-play", {
+            url,
+            title,
+            artist: item.author || "",
+            artwork: normalizePic(item.pic)
+          });
+
+          nowPlaying.textContent = `正在播放：${title}`;
+          updatePlayerSurface("正在播放");
+          addHistoryItem(item);
+          setOutput(result);
+        } catch (error) {
+          playbackState = "failed";
+          nowPlaying.textContent = "播放失败";
+          updatePlayerSurface("播放失败");
+          const message = errorMessage(error);
+          setOutput(message);
+          showToast(message, "error");
+        }
+      }
+
+      function restoreState() {
+        queue = readStorage(STORAGE_KEYS.queue, []);
+        currentIndex = readStorage(STORAGE_KEYS.currentIndex, -1);
+        keywordInput.value = readStorage(STORAGE_KEYS.lastSearchKeyword, "");
+        updatePlayModeButton();
+        renderFavorites();
+        renderFavoriteArtists();
+        renderPlaylists();
+        const current = queue[currentIndex];
+        currentItem = current || null;
+        if (currentItem) {
+          nowPlaying.textContent = `上次播放：${stripHtml(currentItem.title)}`;
+          updatePlayerSurface("上次播放");
+        } else {
+          updatePlayerSurface();
+        }
+
+        const popular = mostPlayedItems();
+        if (popular.length) {
+          activeSpace = null;
+          activeSearch = null;
+          lastSearchResults = [];
+          resultsTitle.textContent = "推荐";
+          spaceActions.hidden = true;
+          spaceLoadMoreButton.hidden = true;
+          document.getElementById("results-section").open = false;
+          resultsEl.innerHTML = "";
+          for (const [index, item] of popular.entries()) {
+            resultsEl.appendChild(createMediaButton(item, index, async () => {
+              queue = popular;
+              currentIndex = index;
+              renderResults(queue, currentIndex);
+              persistQueue();
+              await playVideo(item);
+            }, { addOnly: true }));
+          }
+          setOutput(`已载入 ${popular.length} 条推荐`);
+        } else {
+          activeSearch = null;
+          resultsTitle.textContent = "推荐";
+          spaceActions.hidden = true;
+          spaceLoadMoreButton.hidden = true;
+          document.getElementById("results-section").open = false;
+          resultsEl.innerHTML = '<div class="empty">播放几首歌后，这里会显示推荐。</div>';
+        }
+      }
+
+      searchButton.addEventListener("click", search);
+      keywordInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") search();
+      });
+
+      document.getElementById("prev-button").addEventListener("click", playPrevious);
+      playToggleButton.addEventListener("click", togglePlayback);
+      document.getElementById("next-button").addEventListener("click", playNext);
+      playModeButton.addEventListener("click", togglePlayMode);
+      playerAddButton.addEventListener("click", addCurrentToList);
+      detailArtist.addEventListener("click", openArtistSpace);
+      favoriteArtistButton.addEventListener("click", () => toggleFavoriteArtist(activeSpace));
+      spacePlayAllButton.addEventListener("click", async () => {
+        if (!activeSpace || !activeSpace.items.length) {
+          showToast("这个 UP 主还没有可播放的视频");
+          return;
+        }
+        await playAll(activeSpace.items);
+      });
+      spaceLoadMoreButton.addEventListener("click", () => {
+        if (activeSpace) {
+          loadSpaceVideos();
+        } else {
+          loadMoreSearchResults();
+        }
+      });
+      favoritePlayAllButton.addEventListener("click", async () => {
+        await playAll(readFavorites());
+      });
+      favoriteReorderButton.addEventListener("click", () => {
+        favoriteReorderMode = !favoriteReorderMode;
+        favoriteReorderButton.textContent = favoriteReorderMode ? "完成排序" : "调整顺序";
+        renderFavorites();
+      });
+      createPlaylistButton.addEventListener("click", createPlaylist);
+
+      for (const label of tabLabels) {
+        label.addEventListener("click", () => {
+          const current = activeTabIndex();
+          const next = tabOrder.indexOf(label.dataset.tab);
+          switchTab(label.dataset.tab, next >= current ? 1 : -1);
+        });
+      }
+
+      mainEl.addEventListener("touchstart", (event) => {
+        if (playerPanel.classList.contains("open") || shouldIgnoreTabSwipe(event.target)) return;
+        if (!event.touches.length) return;
+        const touch = event.touches[0];
+        tabGestureStart = {
+          x: touch.clientX,
+          y: touch.clientY,
+          time: Date.now()
+        };
+      }, { passive: true });
+
+      mainEl.addEventListener("touchend", (event) => {
+        if (!tabGestureStart || !event.changedTouches.length) return;
+        if (shouldIgnoreTabSwipe(event.target)) {
+          tabGestureStart = null;
+          return;
+        }
+
+        const touch = event.changedTouches[0];
+        const dx = touch.clientX - tabGestureStart.x;
+        const dy = touch.clientY - tabGestureStart.y;
+        const elapsed = Date.now() - tabGestureStart.time;
+        tabGestureStart = null;
+
+        if (elapsed > 900) return;
+
+        const absX = Math.abs(dx);
+        const absY = Math.abs(dy);
+        if (absX > 64 && absX > absY * 1.2) {
+          event.preventDefault();
+          switchRelativeTab(dx < 0 ? 1 : -1);
+        }
+      }, { passive: false });
+
+      document.getElementById("close-player-button").addEventListener("click", () => {
+        setPlayerOpen(false);
+      });
+
+      miniPlayer.addEventListener("click", (event) => {
+        if (event.target === miniToggle) return;
+        setPlayerOpen(true);
+      });
+
+      miniToggle.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        await togglePlayback();
+      });
+
+      function shouldIgnorePlayerGesture(target) {
+        return Boolean(target.closest("button, input, .progress"));
+      }
+
+      playerPanel.addEventListener("touchstart", (event) => {
+        if (shouldIgnorePlayerGesture(event.target)) return;
+        if (!event.touches.length) return;
+        const touch = event.touches[0];
+        gestureStart = {
+          x: touch.clientX,
+          y: touch.clientY,
+          time: Date.now()
+        };
+      }, { passive: true });
+
+      playerPanel.addEventListener("touchend", async (event) => {
+        if (shouldIgnorePlayerGesture(event.target)) {
+          gestureStart = null;
+          return;
+        }
+        if (!gestureStart || !event.changedTouches.length) return;
+        const touch = event.changedTouches[0];
+        const dx = touch.clientX - gestureStart.x;
+        const dy = touch.clientY - gestureStart.y;
+        const elapsed = Date.now() - gestureStart.time;
+        gestureStart = null;
+
+        if (elapsed > 900) return;
+
+        const absX = Math.abs(dx);
+        const absY = Math.abs(dy);
+        if (absY > 64 && dy < 0 && absY > absX * 1.1) {
+          event.preventDefault();
+          setPlayerOpen(false);
+          return;
+        }
+
+        if (absX > 64 && absX > absY * 1.1) {
+          event.preventDefault();
+          if (dx < 0) {
+            await playNext();
+          } else {
+            await playPrevious();
+          }
+        }
+      }, { passive: false });
+
+      progressRange.addEventListener("input", () => {
+        isDraggingProgress = true;
+        positionLabel.textContent = formatTime(Number(progressRange.value));
+      });
+
+      progressRange.addEventListener("change", async () => {
+        const seconds = Number(progressRange.value);
+        isDraggingProgress = false;
+        await window.ipcRenderer.invoke("native-audio-seek", { seconds });
+      });
+
+      progressRange.addEventListener("pointerup", () => {
+        isDraggingProgress = false;
+      });
+
+      function clearHistoryData() {
+        writeStorage(STORAGE_KEYS.history, []);
+        renderPlaylists();
+        setOutput("最近播放已清空");
+        showToast("最近播放已清空", "success");
+      }
+
+      function clearFavoritesData() {
+        writeStorage(STORAGE_KEYS.favorites, []);
+        writeStorage(STORAGE_KEYS.favoriteArtists, []);
+        renderFavorites([]);
+        renderFavoriteArtists([]);
+        renderPlaylists();
+        renderResults(queue, currentIndex);
+        updateFavoriteArtistButton();
+        setOutput("我的收藏已清空");
+        showToast("我的收藏已清空", "success");
+      }
+
+      async function clearLocalData() {
+        await window.ipcRenderer.invoke("native-audio-stop");
+        writeStorage(STORAGE_KEYS.history, []);
+        writeStorage(STORAGE_KEYS.favorites, []);
+        writeStorage(STORAGE_KEYS.favoriteArtists, []);
+        writeStorage(STORAGE_KEYS.playlists, []);
+        writeStorage(STORAGE_KEYS.queue, []);
+        writeStorage(STORAGE_KEYS.currentIndex, -1);
+        queue = [];
+        currentIndex = -1;
+        currentItem = null;
+        playbackState = "stopped";
+        renderFavorites([]);
+        renderFavoriteArtists([]);
+        renderPlaylists([]);
+        renderResults([]);
+        updatePlayerSurface();
+        updateProgress(0, 0);
+        setOutput("本地数据已清空");
+        showToast("本地数据已清空", "success");
+      }
+
+      document.getElementById("clear-history-button").addEventListener("click", () => {
+        confirmDelete(
+          "这会删除最近播放列表，播放列表里的其他内容不会受影响。",
+          clearHistoryData
+        );
+      });
+
+      document.getElementById("clear-favorites-button").addEventListener("click", () => {
+        confirmDelete(
+          "这会删除收藏音乐和收藏 UP 主，自建播放列表不会被删除。",
+          clearFavoritesData
+        );
+      });
+
+      document.getElementById("clear-local-data-button").addEventListener("click", () => {
+        confirmDelete(
+          "这会删除最近播放、我的收藏、自建播放列表和当前播放队列。",
+          clearLocalData
+        );
+      });
+
+      window.ipcRenderer.on("native-audio-state", (_event, payload) => {
+        const title = payload.title || "当前音频";
+        playbackState = payload.state || playbackState;
+        const stateText = playbackStateText(playbackState);
+
+        nowPlaying.textContent = `${stateText}：${title}`;
+        updatePlayerSurface(stateText);
+        updateProgress(payload.position, payload.duration);
+        if (payload.message) setOutput(payload.message);
+        if (payload.state === "ended") playNext(true);
+      });
+
+      window.ipcRenderer.on("native-audio-progress", (_event, payload) => {
+        updateProgress(payload.position, payload.duration);
+      });
+
+      window.ipcRenderer.on("native-audio-command", (_event, payload) => {
+        if (payload.command === "next") playNext();
+        if (payload.command === "previous") playPrevious();
+      });
+
+      document.getElementById("nav-test").addEventListener("click", async () => {
+        await withBusy(document.getElementById("nav-test"), "读取中", async () => {
+          try {
+            const result = await window.ipcRenderer.invoke("bili-user-info");
+            setOutput(result);
+            showToast(result && result.info && result.info.isLogin ? "已登录" : "未登录");
+          } catch (error) {
+            const message = errorMessage(error);
+            setOutput(message);
+            showToast(message, "error");
+          }
+        });
+      });
+
+      document.getElementById("platform-test").addEventListener("click", async () => {
+        await withBusy(document.getElementById("platform-test"), "读取中", async () => {
+          try {
+            setOutput(await window.ipcRenderer.invoke("get-platform-info"));
+            showToast("平台信息已读取", "success");
+          } catch (error) {
+            const message = errorMessage(error);
+            setOutput(message);
+            showToast(message, "error");
+          }
+        });
+      });
+
+      document.getElementById("search-debug-button").addEventListener("click", async () => {
+        await withBusy(document.getElementById("search-debug-button"), "诊断中", async () => {
+          try {
+            const keyword = keywordInput.value.trim() || readStorage(STORAGE_KEYS.lastSearchKeyword, "") || "邓紫棋";
+            const result = await window.ipcRenderer.invoke("bili-search-debug", keyword);
+            setOutput(result);
+            showToast("搜索诊断完成", "success");
+          } catch (error) {
+            const message = errorMessage(error);
+            setOutput(message);
+            showToast(message, "error");
+          }
+        });
+      });
+
+      document.getElementById("logout-button").addEventListener("click", async () => {
+        await confirmLogout(async () => {
+          await withBusy(document.getElementById("logout-button"), "退出中", async () => {
+            try {
+              await window.ipcRenderer.invoke("bili-logout");
+              setOutput("已退出登录");
+              showToast("已退出登录", "success");
+            } catch (error) {
+              const message = errorMessage(error);
+              setOutput(message);
+              showToast(message, "error");
+            }
+          });
+        });
+      });
+
+      document.getElementById("web-login-test").addEventListener("click", async () => {
+        await withBusy(document.getElementById("web-login-test"), "打开中", async () => {
+          try {
+            await window.ipcRenderer.invoke("bili-web-login-open");
+          } catch (error) {
+            const message = errorMessage(error);
+            setOutput(message);
+            showToast(message, "error");
+          }
+        });
+      });
+
+      document.getElementById("qr-test").addEventListener("click", async () => {
+        await withBusy(document.getElementById("qr-test"), "生成中", async () => {
+          try {
+            if (pollTimer) {
+              clearInterval(pollTimer);
+              pollTimer = null;
+            }
+
+            const result = await window.ipcRenderer.invoke("bili-qr-generate");
+            qrImage.src = result.qrImage;
+            qrImage.style.display = "block";
+            setOutput({ oauthKey: result.oauthKey, url: result.url });
+            showToast("二维码已生成");
+
+            let pollCount = 0;
+            pollTimer = setInterval(async () => {
+              pollCount += 1;
+              if (pollCount > 120) {
+                clearInterval(pollTimer);
+                pollTimer = null;
+                setOutput("扫码超时，请重新生成二维码。");
+                showToast("扫码超时，请重新生成二维码", "error");
+                return;
+              }
+
+              try {
+                const poll = await window.ipcRenderer.invoke("bili-qr-poll", result.oauthKey);
+                setOutput(poll);
+                if (poll.status === "confirmed" || poll.status === "failed") {
+                  clearInterval(pollTimer);
+                  pollTimer = null;
+                  showToast(poll.status === "confirmed" ? "登录成功" : "登录失败", poll.status === "confirmed" ? "success" : "error");
+                }
+              } catch (error) {
+                const message = errorMessage(error);
+                setOutput(message);
+                showToast(message, "error");
+              }
+            }, 1500);
+          } catch (error) {
+            const message = errorMessage(error);
+            setOutput(message);
+            showToast(message, "error");
+          }
+        });
+      });
+
+      restoreState();
+    </script>
+  </body>
+</html>
